@@ -1,0 +1,46 @@
+Overall architecture and rationale
+
+Concrete data model / ClickHouse schema (production-minded)
+
+Config & secrets handling
+
+state.rs (detailed responsibilities + copy/paste pattern)
+
+main.rs lifecycle + task spawning + graceful shutdown
+
+Fetcher task (exact flow, reorg handling, confirmation depth)
+
+Loader task (batching strategy, retries, commit semantics)
+
+Service boundaries & traits for testability (Hexagonal)
+
+Concurrency and performance tuning knobs (channels, batching, parallelism)
+
+Observability, metrics, healthchecks
+
+Testing & local dev (regtest + ClickHouse)
+
+Production deployment notes (resources, monitoring, operational tips)
+-----------------------------------------------------------------------------------
+1) High-level architecture (what every piece does)
+
+Axum HTTP (handlers) — thin adapters: health, status, control endpoints (start/stop/backfill). No heavy IO here.
+
+State (state.rs) — single place that constructs & owns shared clients, channels, progress store, shutdown token. Exposes a clonable AppState for handlers & tasks.
+
+Tasks — long-running tokio::spawn tasks:
+
+Fetcher: polls RPC (or subscribes if available) and produces BlockRecord messages on a bounded channel.
+
+Transformer: lightweight conversion from RPC structs → domain models (usually inline in fetcher or as separate stage).
+
+Loader: consumes batches from channel and writes to ClickHouse in efficient bulk inserts.
+
+Services (adapters) — BitcoinRpcAdapter, ClickhouseAdapter implementing simple traits so core logic is testable and swappable.
+
+Persistence — ClickHouse primary store; also small progress table to record last committed height and optionally batch metadata for idempotency.
+
+Metrics & tracing — Prometheus counters, histograms, and structured logs via tracing.
+
+Bitcoin RPC -> fetcher -> (channel) -> loader -> ClickHouse
+                                   ↳ persist progress (durable)
