@@ -3,7 +3,6 @@ use serde::{Serialize, Deserialize};
 use chrono::NaiveDateTime;
 
 
-
 //fetch data from blockchain
 #[derive(Serialize)]
 struct NewOwner {
