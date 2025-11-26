@@ -1,21 +1,10 @@
 use clickhouse::Row;
-use serde::{Serialize, Deserialize};
-use chrono::NaiveDateTime;
+use serde::Serialize;
 
-
-//fetch data from blockchain
-#[derive(Serialize)]
-struct NewOwner {
-    address: String,
-    person_name: String,
-    personal_id: u16
-}
-
-//Update owner Row with database upgrade
-#[derive(Row, Serialize, Deserialize)]
+#[derive(Row, Serialize)]
 pub struct OwnerRow {
-    address: String,
-    person_name: String,
-    person_id: u16,
-    personal_id: u16
+    pub address: String,
+    pub person_name: String,
+    pub person_id: u16,
+    pub personal_id: u16,
 }

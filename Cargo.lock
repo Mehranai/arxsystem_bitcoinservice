@@ -76,7 +76,7 @@ dependencies = [
  "clickhouse",
  "config",
  "ethers",
- "hyper 1.8.1",
+ "futures",
  "reqwest 0.12.24",
  "serde",
  "serde_json",

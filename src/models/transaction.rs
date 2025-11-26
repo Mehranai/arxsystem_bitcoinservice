@@ -1,20 +1,19 @@
-use clickhouse::Row;
 use serde::{Serialize, Deserialize};
-use chrono::NaiveDateTime;
+use clickhouse::Row;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Row)]
 pub struct TransactionRow {
     pub hash: String,
     pub block_number: u64,
     pub from_addr: String,
     pub to_addr: String,
     pub value: String,
-    pub sensivity: Sensivity,
+    pub sensivity: u8,
 }
 
 #[repr(u8)]
 #[derive(Serialize, Deserialize, Debug)]
-enum Sensivity {
+pub enum Sensivity {
     Red = 1,
     Yellow = 2,
     Green = 3

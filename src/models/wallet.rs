@@ -1,11 +1,10 @@
 use clickhouse::Row;
-use serde::{Serialize, Deserialize};
-use chrono::NaiveDateTime;
+use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Row)]
 pub struct WalletRow {
     pub address: String,
-    pub balance: usize,
+    pub balance: String,
     pub nonce: u64,
     #[serde(rename = "type")]
     pub wallet_type: String,

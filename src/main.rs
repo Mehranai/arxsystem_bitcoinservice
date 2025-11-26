@@ -1,27 +1,29 @@
-use anyhow::Error;
+use tokio;
+use anyhow::Result;
+use arz_axum_for_bitcoin::config::AppConfig;
+use arz_axum_for_bitcoin::tasks::fetch_loop::{run_btc_loop, run_eth_loop};
 
-use arz_axum_for_bitcoin::{
-    models::{OwnerRow, owner},
-    services::bitcoin
-};
-use serde::Serialize;
-;
+// Axum Section
+use arz_axum_for_bitcoin::router::build_router;
+
 
 #[tokio::main]
-async fn main() -> Result<(), Error>{
+async fn main() -> Result<()> {
+    
+    let config = AppConfig::default();
 
+    let fetch_handle = tokio::spawn({
+        let config = config.clone();
+        async move { run_btc_loop(config).await.unwrap(); }
+    });
 
-
-    let _output_btc = bitcoin::get_sound().await;
+    fetch_handle.await.unwrap();
     Ok(())
 
-//     let cfg = config::load();
-//     let state = state::init(&cfg).await;
-
-//     let app = router::create(state);
-
-//     axum::Server::bind(&cfg.bind_addr)
-//         .serve(app.into_make_service())
-//         .await
-//         .unwrap();
+    // Axum Section Skip
+    // let app = router::create(state);
+    // axum::Server::bind(&cfg.bind_addr)
+    //     .serve(app.into_make_service())
+    //     .await
+    //     .unwrap();
 }
