@@ -1,4 +1,4 @@
-use crate::services::loader::Loader;
+use crate::services::loader::LoaderEth;
 use crate::models::transaction::Sensivity;
 use crate::services::progress::{save_tx, save_wallet};
 
@@ -11,7 +11,7 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use serde::Deserialize;
 
 
-pub async fn fetch_eth(loader: Arc<Loader>, start_block: u64, total_txs: u64) -> Result<()> {
+pub async fn fetch_eth(loader: Arc<LoaderEth>, start_block: u64, total_txs: u64) -> Result<()> {
     let provider = loader.eth_provider.clone();
     let clickhouse = loader.clickhouse.clone();
     let mut tx_count = 0;

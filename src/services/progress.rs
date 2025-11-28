@@ -26,6 +26,8 @@ pub async fn save_tx(clickhouse: Arc<Client>,hash: String,block_number: u64, fro
 
 pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String, nonce: u64,  wallet_type: String) -> Result<()> {
 
+    if addr.is_empty() { return Ok(()); }
+
     let wallet = WalletRow {
         address: addr.into(),
         balance: balance,

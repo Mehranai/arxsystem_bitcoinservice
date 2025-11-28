@@ -1,7 +1,6 @@
-use crate::services::loader::Loader;
-use crate::models::transaction::{TransactionRow, Sensivity};
-use crate::models::wallet::WalletRow;
-use crate::models::owner::OwnerRow;
+use crate::services::loader::LoaderBtc;
+use crate::models::transaction::Sensivity;
+use crate::services::progress::{save_tx, save_wallet};
 use crate::models::blockstreams::*;
 
 use clickhouse::Client;
@@ -27,7 +26,7 @@ fn calc_sensivity_btc(value: f64) -> Sensivity {
     else { Sensivity::Green }
 }
 
-pub async fn fetch_btc(loader: Arc<Loader>, start_block: u64, total_txs: u64, base_url: &str) -> Result<()> {
+pub async fn fetch_btc(loader: Arc<LoaderBtc>, start_block: u64, total_txs: u64, base_url: &str) -> Result<()> {
     let clickhouse = loader.clickhouse.clone();
     let mut tx_count = 0;
 
@@ -40,11 +39,11 @@ pub async fn fetch_btc(loader: Arc<Loader>, start_block: u64, total_txs: u64, ba
         for tx in txs {
             if tx_count >= total_txs { break; }
             let clickhouse = clickhouse.clone();
-            let base_url = base_url.to_string();
             tasks.push(tokio::spawn(async move {
-                process_tx(clickhouse, tx, block_height, &base_url).await?;
+                process_tx(clickhouse, tx, block_height).await?;
                 Ok::<(), anyhow::Error>(())
             }));
+            println!("Added tx #{}", tx_count);
             tx_count += 1;
         }
 
@@ -55,55 +54,17 @@ pub async fn fetch_btc(loader: Arc<Loader>, start_block: u64, total_txs: u64, ba
     Ok(())
 }
 
-async fn process_tx(clickhouse: Arc<Client>, tx: BlockTx, block_number: u64, base_url: &str) -> Result<()> {
+async fn process_tx(clickhouse: Arc<Client>, tx: BlockTx, block_number: u64) -> Result<()> {
     let from_addr = tx.vin.iter().filter_map(|v| v.prevout.as_ref()?.scriptpubkey_address.clone()).next().unwrap_or_default();
     let to_addr = tx.vout.iter().filter_map(|v| v.scriptpubkey_address.clone()).next().unwrap_or_default();
     let total_value_sats: u64 = tx.vout.iter().map(|v| v.value).sum();
     let total_value = btc_from_sats(total_value_sats);
 
-    let tx_row = TransactionRow {
-        hash: tx.txid.clone(),
-        block_number,
-        from_addr: from_addr.clone(),
-        to_addr: to_addr.clone(),
-        value: total_value.to_string(),
-        sensivity: calc_sensivity_btc(total_value) as u8,
-    };
+    save_tx(clickhouse.clone(), tx.txid, block_number, from_addr.clone(), to_addr.clone(), total_value.to_string(), calc_sensivity_btc(total_value) as u8).await?;
 
-    let mut insert_tx = clickhouse.insert::<TransactionRow>("transactions").await?;
-    insert_tx.write(&tx_row).await?;
-    insert_tx.end().await?;
 
-    save_wallet(clickhouse.clone(), from_addr, total_value).await?;
-    save_wallet(clickhouse.clone(), to_addr, total_value).await?;
-    Ok(())
-}
-
-async fn save_wallet(clickhouse: Arc<Client>, address: String, balance: f64) -> Result<()> {
-    if address.is_empty() { return Ok(()); }
-
-    let wallet = WalletRow {
-        address: address.clone(),
-        balance: balance.to_string(),
-        nonce: 0,
-        wallet_type: "wallet".into(),
-    };
-
-    let owner = OwnerRow {
-        address: address.clone(),
-        person_name: "".into(),
-        person_id: 0,
-        personal_id: 0,
-    };
-
-    let mut insert_wallet = clickhouse.insert::<WalletRow>("wallet_info").await?;
-    insert_wallet.write(&wallet).await?;
-    insert_wallet.end().await?;
-
-    let mut insert_owner = clickhouse.insert::<OwnerRow>("owner_info").await?;
-    insert_owner.write(&owner).await?;
-    insert_owner.end().await?;
-
+    save_wallet(clickhouse.clone(), &from_addr, total_value.to_string(), 0, "".to_string()).await?;
+    save_wallet(clickhouse.clone(), &to_addr, total_value.to_string(), 0, "".to_string()).await?;
     Ok(())
 }
 
