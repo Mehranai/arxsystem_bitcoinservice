@@ -21,7 +21,7 @@ ORDER BY block_number;
 CREATE TABLE IF NOT EXISTS pajohesh.owner_info (
     address String,
     person_name String,
-    person_id UInt16,
+    person_id String,
     personal_id UInt16
 ) ENGINE = ReplacingMergeTree()
 ORDER BY address;

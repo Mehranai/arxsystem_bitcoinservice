@@ -8,6 +8,7 @@ pub struct WalletRow {
     pub nonce: u64,
     #[serde(rename = "type")]
     pub wallet_type: String,
+    pub person_id: String
 }
 
 enum WalletType {

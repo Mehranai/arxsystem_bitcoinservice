@@ -5,6 +5,7 @@ use crate::models::transaction::TransactionRow;
 use clickhouse::Client;
 use std::sync::Arc;
 use anyhow::Result;
+use nanoid::nanoid;
 
 pub async fn save_tx(clickhouse: Arc<Client>,hash: String,block_number: u64, from: String, to:String, value:String, sensivity: u8 ) -> Result<()> {
 
@@ -28,17 +29,21 @@ pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String
 
     if addr.is_empty() { return Ok(()); }
 
+    let person_id = generate_person_id();
+
     let wallet = WalletRow {
         address: addr.into(),
         balance: balance,
         nonce: nonce,
         wallet_type: wallet_type,
+        person_id: person_id.clone()
+
     };
 
     let owner = OwnerRow {
         address: addr.into(),
         person_name: "".into(),
-        person_id: 0,
+        person_id: person_id.clone(),
         personal_id: 0,
     };
 
@@ -51,4 +56,8 @@ pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String
     insert_owner.end().await?;
 
     Ok(())
+}
+
+pub fn generate_person_id() -> String {
+    nanoid!(10)
 }

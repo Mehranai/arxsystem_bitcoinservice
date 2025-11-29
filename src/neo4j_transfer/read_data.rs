@@ -10,7 +10,7 @@ struct WalletInfo {
     nonce: u64,
     wallet_type: String,
     person_name: Option<String>,
-    person_id: Option<u16>,
+    person_id: Option<String>,
     personal_id: Option<u16>,
 }
 

@@ -24,20 +24,20 @@ pub async fn insert_wallet(session: &Session, w: &WalletInfo) {
                 o.personal_id = $personal_id
             ",
         )
-        .param("pid", person_id as i64)
+        .param("pid", person_id)
         .param("pname", w.person_name.clone().unwrap_or_default())
-        .param("personal_id", w.personal_id.unwrap_or(0) as i64);
+        .param("personal_id", w.personal_id.clone().unwrap_or_default());
 
         session.execute(owner_query).await.unwrap();
 
-        
+
         let owns_query = query(
             "
             MATCH (o:Owner {person_id: $pid}), (w:Wallet {address: $address})
             MERGE (o)-[:OWNS]->(w)
             ",
         )
-        .param("pid", person_id as i64)
+        .param("pid", person_id)
         .param("address", &w.address);
 
         session.execute(owns_query).await.unwrap();
