@@ -11,6 +11,7 @@ pub struct WalletRow {
     pub person_id: String
 }
 
+#[allow(dead_code)]
 enum WalletType {
     Custodial = 1,
     NonCustodail = 2,
