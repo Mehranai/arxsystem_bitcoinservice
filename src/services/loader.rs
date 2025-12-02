@@ -36,7 +36,7 @@ impl LoaderBtc {
                     .with_url(&config.clickhouse_url)
                     .with_user(&config.clickhouse_user)
                     .with_password(&config.clickhouse_pass)
-                    .with_database(&config.clickhouse_db_eth),
+                    .with_database(&config.clickhouse_db_btc),
             );
 
             Ok(Self { clickhouse })

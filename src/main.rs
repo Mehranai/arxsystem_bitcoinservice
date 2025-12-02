@@ -1,10 +1,10 @@
 use tokio;
 use anyhow::Result;
 use arz_axum_for_bitcoin::config::AppConfig;
-use arz_axum_for_bitcoin::tasks::fetch_loop::{run_btc_loop, run_eth_loop};
+use arz_axum_for_bitcoin::tasks::fetch_loop::{run_btc_loop};
 
 // Axum Section
-use arz_axum_for_bitcoin::router::build_router;
+//use arz_axum_for_bitcoin::router::build_router;
 
 
 #[tokio::main]

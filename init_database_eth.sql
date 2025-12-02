@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS pajohesh.wallet_info (
     address String,
     balance String,
     nonce UInt64,
-    wallet_type String,
+    type String,
+    person_id String,
 ) ENGINE = ReplacingMergeTree()
 ORDER BY address;
 

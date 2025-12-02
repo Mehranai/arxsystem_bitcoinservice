@@ -75,21 +75,10 @@ async fn get_block_hash_by_height(base_url: &str, height: u64) -> Result<String>
 }
 
 async fn get_block_txs(base_url: &str, block_hash: &str) -> Result<Vec<BlockTx>> {
-    let mut all_txs = Vec::new();
-    let mut start = 0;
+    let url = format!("{}/block/{}/txs", base_url, block_hash);
+    let resp = reqwest::get(&url).await?;
+    let body_text = resp.text().await?;
+    let txs_page: Vec<BlockTx> = serde_json::from_str(&body_text)?;
 
-    loop {
-        let url = format!("{}/block/{}/txs/{}", base_url, block_hash, start);
-        let resp = reqwest::get(&url).await?;
-        if !resp.status().is_success() { break; }
-        let body_text = resp.text().await?;
-        let txs_page: Vec<BlockTx> = serde_json::from_str(&body_text)?;
-        if txs_page.is_empty() { break; }
-        let page_len = txs_page.len();
-        all_txs.extend(txs_page.into_iter());
-        if page_len < 25 { break; }
-        start += 25;
-    }
-
-    Ok(all_txs)
+    Ok(txs_page)
 }
