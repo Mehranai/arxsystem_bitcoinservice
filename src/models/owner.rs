@@ -5,6 +5,6 @@ use serde::Serialize;
 pub struct OwnerRow {
     pub address: String,
     pub person_name: String,
-    pub person_id: u16,
-    pub personal_id: u16,
+    pub person_id: u64,
+    pub personal_id: u64,
 }

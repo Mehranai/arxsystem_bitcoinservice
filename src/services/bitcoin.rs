@@ -1,5 +1,5 @@
 use crate::services::loader::LoaderBtc;
-use crate::models::transaction::{Sensivity, TransactionRow};
+use crate::models::transaction::Sensivity;
 use crate::models::blockstreams::*;
 use crate::services::progress::{save_tx, save_wallet};
 
@@ -77,6 +77,7 @@ async fn start_workers(
                         batch.push(tx, block);
 
                         if batch.is_full() {
+                            println!("Batch is FUll > Let's write on Database");
                             if let Err(e) = flush_batch_with_save(&ch, &mut batch).await {
                                 eprintln!("Worker {id} flush error: {:?}", e);
                             }
@@ -111,6 +112,7 @@ async fn flush_batch_with_save(clickhouse: &Arc<Client>, batch: &mut TxBatch) ->
         let total_value_sats: u64 = tx.vout.iter().map(|v| v.value).sum();
         let total_value = btc_from_sats(total_value_sats);
 
+        println!("Save to Database!");
         save_tx(
             clickhouse.clone(),
             tx.txid.clone(),
@@ -120,6 +122,7 @@ async fn flush_batch_with_save(clickhouse: &Arc<Client>, batch: &mut TxBatch) ->
             total_value.to_string(),
             calc_sensivity_btc(total_value) as u8
         ).await?;
+
 
         save_wallet(clickhouse.clone(), &from_addr, total_value.to_string(), 0, "".to_string()).await?;
 

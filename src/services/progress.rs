@@ -58,10 +58,10 @@ pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String
     Ok(())
 }
 
-pub fn generate_person_id() -> u16{
+pub fn generate_person_id() -> u64{
 
     let alphabet: [char; 10] = [
         '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
     ];
-    nanoid!(10, &alphabet).parse().expect("Cannot Cast String to U16 (PersonId)")
+    nanoid!(10, &alphabet).parse::<u64>().expect("Cannot Cast String to U16 (PersonId)")
 }

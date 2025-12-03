@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS pajohesh.wallet_info (
     balance String,
     nonce UInt64,
     type String,
-    person_id UInt16,
+    person_id UInt64,
 ) ENGINE = ReplacingMergeTree()
 ORDER BY address;
 
@@ -22,7 +22,7 @@ ORDER BY block_number;
 CREATE TABLE IF NOT EXISTS pajohesh.owner_info (
     address String,
     person_name String,
-    person_id UInt16,
-    personal_id UInt16
+    person_id UInt64,
+    personal_id UInt64
 ) ENGINE = ReplacingMergeTree()
 ORDER BY address;
