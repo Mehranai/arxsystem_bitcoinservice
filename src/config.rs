@@ -27,7 +27,7 @@ impl AppConfig {
             btc_api_url: "https://blockstream.info/api".into(),
             btc_start_block: 831000,
             eth_start_block: 19000000,
-            total_btc_txs: 1000,
+            total_btc_txs: 200,
             total_eth_txs: 300,
         }
     }

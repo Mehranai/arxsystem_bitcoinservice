@@ -8,7 +8,7 @@ pub struct WalletRow {
     pub nonce: u64,
     #[serde(rename = "type")]
     pub wallet_type: String,
-    pub person_id: String
+    pub person_id: u16
 }
 
 #[allow(dead_code)]

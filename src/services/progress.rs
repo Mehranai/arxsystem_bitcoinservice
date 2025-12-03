@@ -36,14 +36,14 @@ pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String
         balance: balance,
         nonce: nonce,
         wallet_type: wallet_type,
-        person_id: person_id.clone()
+        person_id: person_id
 
     };
 
     let owner = OwnerRow {
         address: addr.into(),
         person_name: "".into(),
-        person_id: person_id.clone(),
+        person_id: person_id,
         personal_id: 0,
     };
 
@@ -58,6 +58,10 @@ pub async fn save_wallet(clickhouse: Arc<Client>, addr: &String, balance: String
     Ok(())
 }
 
-pub fn generate_person_id() -> String {
-    nanoid!(10)
+pub fn generate_person_id() -> u16{
+
+    let alphabet: [char; 10] = [
+        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
+    ];
+    nanoid!(10, &alphabet).parse().expect("Cannot Cast String to U16 (PersonId)")
 }
